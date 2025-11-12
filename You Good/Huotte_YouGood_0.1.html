@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5-Day Tiredness Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: #fef9f3;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #2c2c2c;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .day-indicator {
+            text-align: center;
+            color: #2c2c2c;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #fff;
+            border-radius: 10px;
+        }
+
+        .progress-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #d0d0d0;
+            transition: all 0.3s ease;
+        }
+
+        .dot.completed {
+            background: #90ee90;
+        }
+
+        .dot.current {
+            background: #ffb3ba;
+            transform: scale(1.3);
+        }
+
+        .question-section {
+            margin-bottom: 35px;
+            padding: 25px;
+            background: #fff5f5;
+            border-radius: 15px;
+            border: 2px solid #ffd4d4;
+        }
+
+        .question-section:nth-child(2) {
+            background: #f0f8ff;
+            border-color: #c4e0ff;
+        }
+
+        .question {
+            color: #2c2c2c;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .option:hover {
+            transform: translateX(5px);
+            border-color: #ffb3ba;
+        }
+
+        .option input[type="radio"] {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .option label {
+            color: #2c2c2c;
+            cursor: pointer;
+            flex: 1;
+            font-size: 16px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .next-btn {
+            background: #ffb3ba;
+            color: #2c2c2c;
+        }
+
+        .next-btn:hover {
+            background: #ff9aa2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .back-btn {
+            background: #d0d0d0;
+            color: #2c2c2c;
+        }
+
+        .back-btn:hover {
+            background: #b8b8b8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .error {
+            color: #d32f2f;
+            text-align: center;
+            margin-top: 15px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .summary-page {
+            display: none;
+        }
+
+        .summary-page.show {
+            display: block;
+        }
+
+        .day-content {
+            display: none;
+        }
+
+        .day-content.active {
+            display: block;
+        }
+
+        .summary-header {
+            text-align: center;
+            color: #2c2c2c;
+            margin-bottom: 30px;
+        }
+
+        .summary-header h2 {
+            font-size: 26px;
+            margin-bottom: 10px;
+        }
+
+        .summary-results {
+            background: #e8f5e9;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .day-summary {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 5px solid #ffb3ba;
+        }
+
+        .day-summary h3 {
+            color: #2c2c2c;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .summary-item {
+            color: #2c2c2c;
+            font-size: 16px;
+            margin: 5px 0;
+        }
+
+        .total-summary {
+            background: #fff5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 2px solid #ffb3ba;
+        }
+
+        .total-summary h3 {
+            color: #2c2c2c;
+            margin-bottom: 15px;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .restart-btn {
+            width: 100%;
+            padding: 15px;
+            background: #90ee90;
+            color: #2c2c2c;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .restart-btn:hover {
+            background: #7dd87d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>5-Day Tiredness Tracker</h1>
+        
+        <div id="mainContent">
+            <div class="day-indicator" id="dayIndicator">Day 1</div>
+            <div class="progress-dots" id="progressDots"></div>
+
+            <div id="day1" class="day-content active">
+                <div class="question-section">
+                    <div class="question">How tired are you today?</div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="tired0-d1" name="tiredness1" value="0">
+                            <label for="tired0-d1">0 - No chance of dozing</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="tired1-d1" name="tiredness1" value="1">
+                            <label for="tired1-d1">1 - Slight chance of dozing</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="tired2-d1" name="tiredness1" value="2">
+                            <label for="tired2-d1">2 - High chance of dozing</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="tired3-d1" name="tiredness1" value="3">
+                            <label for="tired3-d1">3 - Unable to stay awake</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-section">
+                    <div class="question">How much is narcolepsy affecting you today?</div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="narco0-d1" name="narcolepsy1" value="0">
+                            <label for="narco0-d1">0 - No impact on alertness</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="narco1-d1" name="narcolepsy1" value="1">
+                            <label for="narco1-d1">1 - Mild sleepiness episodes</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="narco2-d1" name="narcolepsy1" value="2">
+                            <label for="narco2-d1">2 - Frequent sleep attacks</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="narco3-d1" name="narcolepsy1" value="3">
+                            <label for="narco3-d1">3 - Severe uncontrollable sleep</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn next-btn" onclick="nextDay(1)">Next Day →</button>
+                </div>
+                <div class="error" id="error1">Please answer both questions before continuing.</div>
+            </div>
+
+            <div id="day2" class="day-content">
+                <div class="question-section">
+                    <div class="question">How tired are you today?</div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="tired0-d2" name="tiredness2" value="0">
+                            <label for="tired0-d2">0 - No chance of dozing</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="tired1-d2" name="tiredness2" value="1">
+                            <label for="tired1-d2">1 - Slight chance of dozing</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="tired2-d2" name="tiredness2" value="2">
+                            <label for="tired2-d2">2 - High chance of dozing</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="tired3-d2" name="tiredness2" value="3">
+                            <label for="tired3-d2">3 - Unable to stay awake</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-section">
+                    <div class="question">How much is narcolepsy affecting you today?</div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="narco0-d2" name="narcolepsy2" value="0">
+                            <label for="narco0-d2">0 - No impact on alertness</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="narco1-d2" name="narcolepsy2" value="1">
+                            <label for="narco1-d2">1 - Mild sleepiness episodes</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="narco2-d2" name="narcolepsy2" value="2">
+                            <label for="narco2-d2">2 - Frequent sleep attacks</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="narco3-d2" name="narcolepsy2" value="3">
+                            <label for="narco3-d2">3 - Severe uncontrollable sleep</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn back-btn" onclick="prevDay(2)">← Back</button>
+                    <button type="button" class="btn next-btn" onclick="nextDay(2)">Next Day →</button>
+                </div>
+                <div class="error" id="error2">Please answer both questions before continuing.</div>
+            </div>
+
+            <div id="day3" class="day-content">
+                <div class="question-section">
+                    <div class="question">How tired are you today?</div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="tired0-d3" name="tiredness3" value="0">
+                            <label for="tired0-d3">0 - No chance of dozing</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="tired1-d3" name="tiredness3" value="1">
+                            <label for="tired1-d3">1 - Slight chance of dozing</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="tired2-d3" name="tiredness3" value="2">
+                            <label for="tired2-d3">2 - High chance of dozing</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="tired3-d3" name="tiredness3" value="3">
+                            <label for="tired3-d3">3 - Unable to stay awake</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-section">
+                    <div class="question">How much is narcolepsy affecting you today?</div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="narco0-d3" name="narcolepsy3" value="0">
+                            <label for="narco0-d3">0 - No impact on alertness</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="narco1-d3" name="narcolepsy3" value="1">
+                            <label for="narco1-d3">1 - Mild sleepiness episodes</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="narco2-d3" name="narcolepsy3" value="2">
+                            <label for="narco2-d3">2 - Frequent sleep attacks</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="narco3-d3" name="narcolepsy3" value="3">
+                            <label for="narco3-d3">3 - Severe uncontrollable sleep</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn back-btn" onclick="prevDay(3)">← Back</button>
+                    <button type="button" class="btn next-btn" onclick="nextDay(3)">Next Day →</button>
+                </div>
+                <div class="error" id="error3">Please answer both questions before continuing.</div>
+            </div>
+
+            <div id="day4" class="day-content">
+                <div class="question-section">
+                    <div class="question">How tired are you today?</div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="tired0-d4" name="tiredness4" value="0">
+                            <label for="tired0-d4">0 - No chance of dozing</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="tired1-d4" name="tiredness4" value="1">
+                            <label for="tired1-d4">1 - Slight chance of dozing</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="tired2-d4" name="tiredness4" value="2">
+                            <label for="tired2-d4">2 - High chance of dozing</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="tired3-d4" name="tiredness4" value="3">
+                            <label for="tired3-d4">3 - Unable to stay awake</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-section">
+                    <div class="question">How much is narcolepsy affecting you today?</div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="narco0-d4" name="narcolepsy4" value="0">
+                            <label for="narco0-d4">0 - No impact on alertness</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="narco1-d4" name="narcolepsy4" value="1">
+                            <label for="narco1-d4">1 - Mild sleepiness episodes</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="narco2-d4" name="narcolepsy4" value="2">
+                            <label for="narco2-d4">2 - Frequent sleep attacks</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="narco3-d4" name="narcolepsy4" value="3">
+                            <label for="narco3-d4">3 - Severe uncontrollable sleep</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn back-btn" onclick="prevDay(4)">← Back</button>
+                    <button type="button" class="btn next-btn" onclick="nextDay(4)">Next Day →</button>
+                </div>
+                <div class="error" id="error4">Please answer both questions before continuing.</div>
+            </div>
+
+            <div id="day5" class="day-content">
+                <div class="question-section">
+                    <div class="question">How tired are you today?</div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="tired0-d5" name="tiredness5" value="0">
+                            <label for="tired0-d5">0 - No chance of dozing</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="tired1-d5" name="tiredness5" value="1">
+                            <label for="tired1-d5">1 - Slight chance of dozing</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="tired2-d5" name="tiredness5" value="2">
+                            <label for="tired2-d5">2 - High chance of dozing</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="tired3-d5" name="tiredness5" value="3">
+                            <label for="tired3-d5">3 - Unable to stay awake</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-section">
+                    <div class="question">How much is narcolepsy affecting you today?</div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="narco0-d5" name="narcolepsy5" value="0">
+                            <label for="narco0-d5">0 - No impact on alertness</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="narco1-d5" name="narcolepsy5" value="1">
+                            <label for="narco1-d5">1 - Mild sleepiness episodes</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="narco2-d5" name="narcolepsy5" value="2">
+                            <label for="narco2-d5">2 - Frequent sleep attacks</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="narco3-d5" name="narcolepsy5" value="3">
+                            <label for="narco3-d5">3 - Severe uncontrollable sleep</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn back-btn" onclick="prevDay(5)">← Back</button>
+                    <button type="button" class="btn next-btn" onclick="showSummary()">View Summary</button>
+                </div>
+                <div class="error" id="error5">Please answer both questions before continuing.</div>
+            </div>
+        </div>
+
+        <div class="summary-page" id="summaryPage">
+            <div class="summary-header">
+                <h2>🎉 5-Day Summary Complete!</h2>
+                <p>Here's your tiredness tracking overview</p>
+            </div>
+
+            <div class="summary-results" id="summaryResults"></div>
+
+            <button class="restart-btn" onclick="restartTracker()">Start New 5-Day Tracker</button>
+        </div>
+    </div>
+
+    <script>
+        let dayData = {};
+        let currentDay = 1;
+
+        function updateProgressDots() {
+            const dotsContainer = document.getElementById('progressDots');
+            dotsContainer.innerHTML = '';
+            
+            for (let i = 1; i <= 5; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                
+                if (i < currentDay) {
+                    dot.classList.add('completed');
+                } else if (i === currentDay) {
+                    dot.classList.add('current');
+                }
+                
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        function nextDay(day) {
+            const tiredness = document.querySelector(`input[name="tiredness${day}"]:checked`);
+            const narcolepsy = document.querySelector(`input[name="narcolepsy${day}"]:checked`);
+            const error = document.getElementById(`error${day}`);
+            
+            if (!tiredness || !narcolepsy) {
+                error.classList.add('show');
+                return;
+            }
+            
+            error.classList.remove('show');
+            
+            dayData[day] = {
+                tiredness: parseInt(tiredness.value),
+                narcolepsy: parseInt(narcolepsy.value)
+            };
+            
+            if (day < 5) {
+                document.getElementById(`day${day}`).classList.remove('active');
+                document.getElementById(`day${day + 1}`).classList.add('active');
+                currentDay = day + 1;
+                document.getElementById('dayIndicator').textContent = `Day ${currentDay}`;
+                updateProgressDots();
+            }
+        }
+
+        function prevDay(day) {
+            if (day > 1) {
+                document.getElementById(`day${day}`).classList.remove('active');
+                document.getElementById(`day${day - 1}`).classList.add('active');
+                currentDay = day - 1;
+                document.getElementById('dayIndicator').textContent = `Day ${currentDay}`;
+                updateProgressDots();
+            }
+        }
+
+        function showSummary() {
+            const tiredness = document.querySelector('input[name="tiredness5"]:checked');
+            const narcolepsy = document.querySelector('input[name="narcolepsy5"]:checked');
+            const error = document.getElementById('error5');
+            
+            if (!tiredness || !narcolepsy) {
+                error.classList.add('show');
+                return;
+            }
+            
+            error.classList.remove('show');
+            
+            dayData[5] = {
+                tiredness: parseInt(tiredness.value),
+                narcolepsy: parseInt(narcolepsy.value)
+            };
+            
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('summaryPage').classList.add('show');
+            
+            let summaryHTML = '';
+            let totalTiredness = 0;
+            let totalNarcolepsy = 0;
+            
+            for (let day = 1; day <= 5; day++) {
+                const data = dayData[day];
+                totalTiredness += data.tiredness;
+                totalNarcolepsy += data.narcolepsy;
+                
+                summaryHTML += `
+                    <div class="day-summary">
+                        <h3>Day ${day}</h3>
+                        <div class="summary-item">Tiredness Level: <strong>${data.tiredness}</strong> - ${getTirednessLabel(data.tiredness)}</div>
+                        <div class="summary-item">Narcolepsy Impact: <strong>${data.narcolepsy}</strong> - ${getNarcolepsyLabel(data.narcolepsy)}</div>
+                    </div>
+                `;
+            }
+            
+            summaryHTML += `
+                <div class="total-summary">
+                    <h3>Overall Totals</h3>
+                    <div class="summary-item">Total Tiredness Score: <strong>${totalTiredness}</strong> out of 15</div>
+                    <div class="summary-item">Total Narcolepsy Score: <strong>${totalNarcolepsy}</strong> out of 15</div>
+                    <div class="summary-item">Average Daily Tiredness: <strong>${(totalTiredness / 5).toFixed(1)}</strong></div>
+                    <div class="summary-item">Average Daily Narcolepsy Impact: <strong>${(totalNarcolepsy / 5).toFixed(1)}</strong></div>
+                </div>
+            `;
+            
+            document.getElementById('summaryResults').innerHTML = summaryHTML;
+        }
+
+        function getTirednessLabel(value) {
+            const labels = [
+                'No chance of dozing',
+                'Slight chance of dozing',
+                'High chance of dozing',
+                'Unable to stay awake'
+            ];
+            return labels[value];
+        }
+
+        function getNarcolepsyLabel(value) {
+            const labels = [
+                'No impact on alertness',
+                'Mild sleepiness episodes',
+                'Frequent sleep attacks',
+                'Severe uncontrollable sleep'
+            ];
+            return labels[value];
+        }
+
+        function restartTracker() {
+            dayData = {};
+            currentDay = 1;
+            
+            for (let day = 1; day <= 5; day++) {
+                const dayElement = document.getElementById(`day${day}`);
+                const radios = dayElement.querySelectorAll('input[type="radio"]');
+                radios.forEach(radio => radio.checked = false);
+                
+                const error = document.getElementById(`error${day}`);
+                error.classList.remove('show');
+                
+                dayElement.classList.remove('active');
+            }
+            
+            document.getElementById('day1').classList.add('active');
+            document.getElementById('dayIndicator').textContent = 'Day 1';
+            document.getElementById('summaryPage').classList.remove('show');
+            document.getElementById('mainContent').style.display = 'block';
+            updateProgressDots();
+        }
+
+        // Initialize progress dots
+        updateProgressDots();
+    </script>
+</body>
+</html>

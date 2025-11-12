@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5-Day Tiredness Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: #fef9f3;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        h1 {
+            color: #2c2c2c;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .day-indicator {
+            text-align: center;
+            color: #2c2c2c;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #fff;
+            border-radius: 10px;
+        }
+
+        .progress-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #d0d0d0;
+            transition: all 0.3s ease;
+        }
+
+        .dot.completed {
+            background: #90ee90;
+        }
+
+        .dot.current {
+            background: #ffb3ba;
+            transform: scale(1.3);
+        }
+
+        .question-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #fff5f5;
+            border-radius: 15px;
+            border: 2px solid #ffd4d4;
+        }
+
+        .question {
+            color: #2c2c2c;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .scale-legend {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #2c2c2c;
+        }
+
+        .scale-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .situation-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .situation-item:hover {
+            border-color: #ffb3ba;
+        }
+
+        .situation-label {
+            color: #2c2c2c;
+            font-size: 15px;
+            flex: 1;
+            margin-right: 15px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+        }
+
+        .radio-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .radio-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .radio-option label {
+            font-size: 14px;
+            color: #2c2c2c;
+            cursor: pointer;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .next-btn {
+            background: #ffb3ba;
+            color: #2c2c2c;
+        }
+
+        .next-btn:hover {
+            background: #ff9aa2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .back-btn {
+            background: #d0d0d0;
+            color: #2c2c2c;
+        }
+
+        .back-btn:hover {
+            background: #b8b8b8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .error {
+            color: #d32f2f;
+            text-align: center;
+            margin-top: 15px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .summary-page {
+            display: none;
+        }
+
+        .summary-page.show {
+            display: block;
+        }
+
+        .day-content {
+            display: none;
+        }
+
+        .day-content.active {
+            display: block;
+        }
+
+        .summary-header {
+            text-align: center;
+            color: #2c2c2c;
+            margin-bottom: 30px;
+        }
+
+        .summary-header h2 {
+            font-size: 26px;
+            margin-bottom: 10px;
+        }
+
+        .summary-results {
+            background: #e8f5e9;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .day-summary {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 5px solid #ffb3ba;
+        }
+
+        .day-summary h3 {
+            color: #2c2c2c;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .summary-item {
+            color: #2c2c2c;
+            font-size: 15px;
+            margin: 5px 0;
+        }
+
+        .total-summary {
+            background: #fff5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 2px solid #ffb3ba;
+        }
+
+        .total-summary h3 {
+            color: #2c2c2c;
+            margin-bottom: 15px;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .restart-btn {
+            width: 100%;
+            padding: 15px;
+            background: #90ee90;
+            color: #2c2c2c;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .restart-btn:hover {
+            background: #7dd87d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>5-Day Tiredness Tracker</h1>
+        
+        <div id="mainContent">
+            <div class="day-indicator" id="dayIndicator">Day 1</div>
+            <div class="progress-dots" id="progressDots"></div>
+
+            <div id="day1" class="day-content active">
+                <div class="question-section">
+                    <div class="question">Epworth Sleepiness Scale - Rate your chance of dozing in these situations:</div>
+                    
+                    <div class="scale-legend">
+                        <div class="scale-item"><strong>0</strong><br>Never</div>
+                        <div class="scale-item"><strong>1</strong><br>Slight</div>
+                        <div class="scale-item"><strong>2</strong><br>Moderate</div>
+                        <div class="scale-item"><strong>3</strong><br>High</div>
+                    </div>
+
+                    <div class="situation-item">
+                        <div class="situation-label">Sitting and reading</div>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="sit1-0-d1" name="sit1-d1" value="0">
+                                <label for="sit1-0-d1">0</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit1-1-d1" name="sit1-d1" value="1">
+                                <label for="sit1-1-d1">1</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit1-2-d1" name="sit1-d1" value="2">
+                                <label for="sit1-2-d1">2</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit1-3-d1" name="sit1-d1" value="3">
+                                <label for="sit1-3-d1">3</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="situation-item">
+                        <div class="situation-label">Watching TV</div>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="sit2-0-d1" name="sit2-d1" value="0">
+                                <label for="sit2-0-d1">0</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit2-1-d1" name="sit2-d1" value="1">
+                                <label for="sit2-1-d1">1</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit2-2-d1" name="sit2-d1" value="2">
+                                <label for="sit2-2-d1">2</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit2-3-d1" name="sit2-d1" value="3">
+                                <label for="sit2-3-d1">3</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="situation-item">
+                        <div class="situation-label">Sitting inactive in a public place (e.g., theater or meeting)</div>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="sit3-0-d1" name="sit3-d1" value="0">
+                                <label for="sit3-0-d1">0</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit3-1-d1" name="sit3-d1" value="1">
+                                <label for="sit3-1-d1">1</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit3-2-d1" name="sit3-d1" value="2">
+                                <label for="sit3-2-d1">2</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit3-3-d1" name="sit3-d1" value="3">
+                                <label for="sit3-3-d1">3</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="situation-item">
+                        <div class="situation-label">As a passenger in a car for an hour without a break</div>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="sit4-0-d1" name="sit4-d1" value="0">
+                                <label for="sit4-0-d1">0</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit4-1-d1" name="sit4-d1" value="1">
+                                <label for="sit4-1-d1">1</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit4-2-d1" name="sit4-d1" value="2">
+                                <label for="sit4-2-d1">2</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit4-3-d1" name="sit4-d1" value="3">
+                                <label for="sit4-3-d1">3</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="situation-item">
+                        <div class="situation-label">Lying down to rest in the afternoon when circumstances permit</div>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="sit5-0-d1" name="sit5-d1" value="0">
+                                <label for="sit5-0-d1">0</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit5-1-d1" name="sit5-d1" value="1">
+                                <label for="sit5-1-d1">1</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit5-2-d1" name="sit5-d1" value="2">
+                                <label for="sit5-2-d1">2</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit5-3-d1" name="sit5-d1" value="3">
+                                <label for="sit5-3-d1">3</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="situation-item">
+                        <div class="situation-label">Sitting and talking with someone</div>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="sit6-0-d1" name="sit6-d1" value="0">
+                                <label for="sit6-0-d1">0</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit6-1-d1" name="sit6-d1" value="1">
+                                <label for="sit6-1-d1">1</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit6-2-d1" name="sit6-d1" value="2">
+                                <label for="sit6-2-d1">2</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit6-3-d1" name="sit6-d1" value="3">
+                                <label for="sit6-3-d1">3</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="situation-item">
+                        <div class="situation-label">Sitting quietly after lunch without alcohol</div>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="sit7-0-d1" name="sit7-d1" value="0">
+                                <label for="sit7-0-d1">0</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit7-1-d1" name="sit7-d1" value="1">
+                                <label for="sit7-1-d1">1</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit7-2-d1" name="sit7-d1" value="2">
+                                <label for="sit7-2-d1">2</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit7-3-d1" name="sit7-d1" value="3">
+                                <label for="sit7-3-d1">3</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="situation-item">
+                        <div class="situation-label">In a car, while stopped for a few minutes in traffic</div>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="sit8-0-d1" name="sit8-d1" value="0">
+                                <label for="sit8-0-d1">0</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit8-1-d1" name="sit8-d1" value="1">
+                                <label for="sit8-1-d1">1</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit8-2-d1" name="sit8-d1" value="2">
+                                <label for="sit8-2-d1">2</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit8-3-d1" name="sit8-d1" value="3">
+                                <label for="sit8-3-d1">3</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn next-btn" onclick="nextDay(1)">Next Day →</button>
+                </div>
+                <div class="error" id="error1">Please answer all questions before continuing.</div>
+            </div>
+
+            <!-- Days 2-5 will be generated by JavaScript -->
+        </div>
+
+        <div class="summary-page" id="summaryPage">
+            <div class="summary-header">
+                <h2>🎉 5-Day Summary Complete!</h2>
+                <p>Here's your Epworth Sleepiness Scale tracking overview</p>
+            </div>
+
+            <div class="summary-results" id="summaryResults"></div>
+
+            <button class="restart-btn" onclick="restartTracker()">Start New 5-Day Tracker</button>
+        </div>
+    </div>
+
+    <script>
+        let dayData = {};
+        let currentDay = 1;
+
+        const situations = [
+            "Sitting and reading",
+            "Watching TV",
+            "Sitting inactive in a public place (e.g., theater or meeting)",
+            "As a passenger in a car for an hour without a break",
+            "Lying down to rest in the afternoon when circumstances permit",
+            "Sitting and talking with someone",
+            "Sitting quietly after lunch without alcohol",
+            "In a car, while stopped for a few minutes in traffic"
+        ];
+
+        function generateDayContent(day) {
+            let html = `
+                <div class="question-section">
+                    <div class="question">Epworth Sleepiness Scale - Rate your chance of dozing in these situations:</div>
+                    
+                    <div class="scale-legend">
+                        <div class="scale-item"><strong>0</strong><br>Never</div>
+                        <div class="scale-item"><strong>1</strong><br>Slight</div>
+                        <div class="scale-item"><strong>2</strong><br>Moderate</div>
+                        <div class="scale-item"><strong>3</strong><br>High</div>
+                    </div>
+            `;
+
+            for (let i = 1; i <= 8; i++) {
+                html += `
+                    <div class="situation-item">
+                        <div class="situation-label">${situations[i-1]}</div>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="sit${i}-0-d${day}" name="sit${i}-d${day}" value="0">
+                                <label for="sit${i}-0-d${day}">0</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit${i}-1-d${day}" name="sit${i}-d${day}" value="1">
+                                <label for="sit${i}-1-d${day}">1</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit${i}-2-d${day}" name="sit${i}-d${day}" value="2">
+                                <label for="sit${i}-2-d${day}">2</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sit${i}-3-d${day}" name="sit${i}-d${day}" value="3">
+                                <label for="sit${i}-3-d${day}">3</label>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `</div>`;
+
+            const buttons = day === 1 
+                ? `<button type="button" class="btn next-btn" onclick="nextDay(${day})">Next Day →</button>`
+                : day === 5
+                ? `<button type="button" class="btn back-btn" onclick="prevDay(${day})">← Back</button>
+                   <button type="button" class="btn next-btn" onclick="showSummary()">View Summary</button>`
+                : `<button type="button" class="btn back-btn" onclick="prevDay(${day})">← Back</button>
+                   <button type="button" class="btn next-btn" onclick="nextDay(${day})">Next Day →</button>`;
+
+            html += `
+                <div class="button-group">
+                    ${buttons}
+                </div>
+                <div class="error" id="error${day}">Please answer all questions before continuing.</div>
+            `;
+
+            return html;
+        }
+
+        function initializeDays() {
+            const mainContent = document.getElementById('mainContent');
+            
+            for (let day = 2; day <= 5; day++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.id = `day${day}`;
+                dayDiv.className = 'day-content';
+                dayDiv.innerHTML = generateDayContent(day);
+                mainContent.appendChild(dayDiv);
+            }
+        }
+
+        function updateProgressDots() {
+            const dotsContainer = document.getElementById('progressDots');
+            dotsContainer.innerHTML = '';
+            
+            for (let i = 1; i <= 5; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                
+                if (i < currentDay) {
+                    dot.classList.add('completed');
+                } else if (i === currentDay) {
+                    dot.classList.add('current');
+                }
+                
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        function validateDay(day) {
+            for (let i = 1; i <= 8; i++) {
+                const selected = document.querySelector(`input[name="sit${i}-d${day}"]:checked`);
+                if (!selected) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function saveDayData(day) {
+            dayData[day] = {
+                situations: {},
+                total: 0
+            };
+
+            for (let i = 1; i <= 8; i++) {
+                const selected = document.querySelector(`input[name="sit${i}-d${day}"]:checked`);
+                const value = parseInt(selected.value);
+                dayData[day].situations[i] = value;
+                dayData[day].total += value;
+            }
+        }
+
+        function nextDay(day) {
+            const error = document.getElementById(`error${day}`);
+            
+            if (!validateDay(day)) {
+                error.classList.add('show');
+                return;
+            }
+            
+            error.classList.remove('show');
+            saveDayData(day);
+            
+            if (day < 5) {
+                document.getElementById(`day${day}`).classList.remove('active');
+                document.getElementById(`day${day + 1}`).classList.add('active');
+                currentDay = day + 1;
+                document.getElementById('dayIndicator').textContent = `Day ${currentDay}`;
+                updateProgressDots();
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function prevDay(day) {
+            if (day > 1) {
+                document.getElementById(`day${day}`).classList.remove('active');
+                document.getElementById(`day${day - 1}`).classList.add('active');
+                currentDay = day - 1;
+                document.getElementById('dayIndicator').textContent = `Day ${currentDay}`;
+                updateProgressDots();
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function showSummary() {
+            const error = document.getElementById('error5');
+            
+            if (!validateDay(5)) {
+                error.classList.add('show');
+                return;
+            }
+            
+            error.classList.remove('show');
+            saveDayData(5);
+            
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('summaryPage').classList.add('show');
+            
+            let summaryHTML = '';
+            let grandTotal = 0;
+            
+            for (let day = 1; day <= 5; day++) {
+                const data = dayData[day];
+                grandTotal += data.total;
+                
+                let interpretation = '';
+                if (data.total <= 5) interpretation = 'Lower Normal Daytime Sleepiness';
+                else if (data.total <= 10) interpretation = 'Higher Normal Daytime Sleepiness';
+                else if (data.total <= 12) interpretation = 'Mild Excessive Daytime Sleepiness';
+                else if (data.total <= 15) interpretation = 'Moderate Excessive Daytime Sleepiness';
+                else interpretation = 'Severe Excessive Daytime Sleepiness';
+                
+                summaryHTML += `
+                    <div class="day-summary">
+                        <h3>Day ${day}</h3>
+                        <div class="summary-item">Total Score: <strong>${data.total}</strong> out of 24</div>
+                        <div class="summary-item">Interpretation: <strong>${interpretation}</strong></div>
+                    </div>
+                `;
+            }
+            
+            summaryHTML += `
+                <div class="total-summary">
+                    <h3>Overall 5-Day Summary</h3>
+                    <div class="summary-item">Total Score (All Days): <strong>${grandTotal}</strong> out of 120</div>
+                    <div class="summary-item">Average Daily Score: <strong>${(grandTotal / 5).toFixed(1)}</strong> out of 24</div>
+                    <div class="summary-item" style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #ffd4d4;">
+                        <strong>Score Interpretation Guide:</strong><br>
+                        0-5: Lower Normal<br>
+                        6-10: Higher Normal<br>
+                        11-12: Mild Excessive Sleepiness<br>
+                        13-15: Moderate Excessive Sleepiness<br>
+                        16-24: Severe Excessive Sleepiness
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('summaryResults').innerHTML = summaryHTML;
+            window.scrollTo(0, 0);
+        }
+
+        function restartTracker() {
+            dayData = {};
+            currentDay = 1;
+            
+            for (let day = 1; day <= 5; day++) {
+                const dayElement = document.getElementById(`day${day}`);
+                const radios = dayElement.querySelectorAll('input[type="radio"]');
+                radios.forEach(radio => radio.checked = false);
+                
+                const error = document.getElementById(`error${day}`);
+                error.classList.remove('show');
+                
+                dayElement.classList.remove('active');
+            }
+            
+            document.getElementById('day1').classList.add('active');
+            document.getElementById('dayIndicator').textContent = 'Day 1';
+            document.getElementById('summaryPage').classList.remove('show');
+            document.getElementById('mainContent').style.display = 'block';
+            updateProgressDots();
+            window.scrollTo(0, 0);
+        }
+
+        // Initialize
+        initializeDays();
+        updateProgressDots();
+    </script>
+</body>
+</html>

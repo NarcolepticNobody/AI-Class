@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Narcolepsy Daily Tracker</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: #fef9f3;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        h1 {
+            color: #2c2c2c;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .day-indicator {
+            text-align: center;
+            color: #2c2c2c;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #fff;
+            border-radius: 10px;
+        }
+
+        .progress-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #d0d0d0;
+            transition: all 0.3s ease;
+        }
+
+        .dot.completed {
+            background: #90ee90;
+        }
+
+        .dot.current {
+            background: #ffb3ba;
+            transform: scale(1.3);
+        }
+
+        .section-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            padding: 10px 16px;
+            background: #fff;
+            border: 2px solid #d0d0d0;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: #2c2c2c;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            border-color: #ffb3ba;
+        }
+
+        .tab-btn.active {
+            background: #ffb3ba;
+            border-color: #ffb3ba;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .question-section {
+            margin-bottom: 20px;
+            padding: 18px;
+            background: #fff5f5;
+            border-radius: 12px;
+            border: 2px solid #ffd4d4;
+        }
+
+        .question {
+            color: #2c2c2c;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .quick-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .input-field {
+            padding: 10px;
+            border: 2px solid #ffd4d4;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 100px;
+        }
+
+        .yes-no-toggle {
+            display: flex;
+            gap: 10px;
+        }
+
+        .toggle-btn {
+            padding: 10px 20px;
+            border: 2px solid #ffd4d4;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.selected {
+            background: #90ee90;
+            border-color: #90ee90;
+            font-weight: 600;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .slider {
+            flex: 1;
+            height: 8px;
+            border-radius: 5px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffb3ba;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffb3ba;
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-value {
+            font-weight: 600;
+            color: #2c2c2c;
+            min-width: 25px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .next-btn {
+            background: #ffb3ba;
+            color: #2c2c2c;
+        }
+
+        .next-btn:hover {
+            background: #ff9aa2;
+            transform: translateY(-2px);
+        }
+
+        .back-btn {
+            background: #d0d0d0;
+            color: #2c2c2c;
+        }
+
+        .back-btn:hover {
+            background: #b8b8b8;
+            transform: translateY(-2px);
+        }
+
+        .error {
+            color: #d32f2f;
+            text-align: center;
+            margin-top: 15px;
+            font-weight: 500;
+            font-size: 14px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .day-content {
+            display: none;
+        }
+
+        .day-content.active {
+            display: block;
+        }
+
+        .helper-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .summary-page {
+            display: none;
+        }
+
+        .summary-page.show {
+            display: block;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            color: #2c2c2c;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border-left: 5px solid #ffb3ba;
+        }
+
+        .summary-card h4 {
+            color: #2c2c2c;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .summary-value {
+            color: #2c2c2c;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .restart-btn {
+            width: 100%;
+            padding: 15px;
+            background: #90ee90;
+            color: #2c2c2c;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .restart-btn:hover {
+            background: #7dd87d;
+            transform: translateY(-2px);
+        }
+
+        .optional-badge {
+            display: inline-block;
+            background: #e0c3fc;
+            color: #2c2c2c;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Narcolepsy Tracker</h1>
+        
+        <div id="mainContent">
+            <div class="day-indicator" id="dayIndicator">Day 1</div>
+            <div class="progress-dots" id="progressDots"></div>
+
+            <div id="dayContainer"></div>
+
+            <div class="button-group" id="navButtons"></div>
+            <div class="error" id="errorMsg">Please complete all required fields.</div>
+        </div>
+
+        <div class="summary-page" id="summaryPage">
+            <div class="chart-title">📊 Your 5-Day Overview</div>
+            
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <h4>😴 Avg Sleepiness</h4>
+                    <div class="summary-value" id="avg-sleepiness">0</div>
+                    <div class="summary-label">out of 10</div>
+                </div>
+                <div class="summary-card">
+                    <h4>⚡ Sleep Attacks</h4>
+                    <div class="summary-value" id="total-attacks">0</div>
+                    <div class="summary-label">total</div>
+                </div>
+                <div class="summary-card">
+                    <h4>💊 Medication</h4>
+                    <div class="summary-value" id="med-compliance">0/5</div>
+                    <div class="summary-label">days</div>
+                </div>
+                <div class="summary-card">
+                    <h4>💧 Water</h4>
+                    <div class="summary-value" id="avg-water">0</div>
+                    <div class="summary-label">glasses/day</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Daily Sleepiness & Sleep Quality</div>
+                <canvas id="mainChart"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Symptoms Overview</div>
+                <canvas id="symptomsChart"></canvas>
+            </div>
+
+            <button class="restart-btn" onclick="restartTracker()">Start New 5-Day Tracker</button>
+        </div>
+    </div>
+
+    <script>
+        let dayData = {};
+        let currentDay = 1;
+        let currentTab = 'sleepiness';
+
+        function createDayHTML(day) {
+            return `
+                <div id="day${day}" class="day-content ${day === 1 ? 'active' : ''}">
+                    <div class="section-tabs">
+                        <button class="tab-btn ${currentTab === 'sleepiness' ? 'active' : ''}" onclick="switchTab('sleepiness')">😴 Sleepiness</button>
+                        <button class="tab-btn ${currentTab === 'sleep' ? 'active' : ''}" onclick="switchTab('sleep')">🌙 Sleep</button>
+                        <button class="tab-btn ${currentTab === 'symptoms' ? 'active' : ''}" onclick="switchTab('symptoms')">⚡ Symptoms</button>
+                        <button class="tab-btn ${currentTab === 'daily' ? 'active' : ''}" onclick="switchTab('daily')">💊 Care</button>
+                    </div>
+
+                    <div class="section ${currentTab === 'sleepiness' ? 'active' : ''}" id="sleepiness-${day}">
+                        <div class="question-section">
+                            <div class="question">Sleepiness Level (0-10)</div>
+                            <div class="slider-container">
+                                <span>Alert</span>
+                                <input type="range" min="0" max="10" value="5" class="slider" id="sleepiness-${day}" oninput="updateSlider('sleepiness', ${day})">
+                                <span>Exhausted</span>
+                                <div class="slider-value" id="sleepiness-val-${day}">5</div>
+                            </div>
+                        </div>
+
+                        <div class="question-section">
+                            <div class="question">Sleep Attacks Today?</div>
+                            <div class="yes-no-toggle">
+                                <button type="button" class="toggle-btn" onclick="toggleBtn('attacks', ${day}, 'yes')">Yes</button>
+                                <button type="button" class="toggle-btn" onclick="toggleBtn('attacks', ${day}, 'no')">No</button>
+                            </div>
+                        </div>
+
+                        <div class="question-section" id="attack-num-${day}" style="display: none;">
+                            <div class="question">Number of Attacks</div>
+                            <input type="number" class="input-field" id="attack-count-${day}" min="0" max="20" value="0">
+                        </div>
+
+                        <div class="question-section">
+                            <div class="question">Planned Naps</div>
+                            <div class="quick-input">
+                                <input type="number" class="input-field" id="naps-${day}" min="0" max="10" value="0">
+                                <span>naps</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section ${currentTab === 'sleep' ? 'active' : ''}" id="sleep-${day}">
+                        <div class="question-section">
+                            <div class="question">Hours Slept Last Night</div>
+                            <div class="quick-input">
+                                <input type="number" class="input-field" id="sleep-hrs-${day}" min="0" max="24" step="0.5" value="7">
+                                <span>hours</span>
+                            </div>
+                        </div>
+
+                        <div class="question-section">
+                            <div class="question">Night Awakenings</div>
+                            <div class="quick-input">
+                                <input type="number" class="input-field" id="awakenings-${day}" min="0" max="20" value="0">
+                                <span>times</span>
+                            </div>
+                        </div>
+
+                        <div class="question-section">
+                            <div class="question">Morning Grogginess (0-10)</div>
+                            <div class="slider-container">
+                                <span>Alert</span>
+                                <input type="range" min="0" max="10" value="5" class="slider" id="grogginess-${day}" oninput="updateSlider('grogginess', ${day})">
+                                <span>Groggy</span>
+                                <div class="slider-value" id="grogginess-val-${day}">5</div>
+                            </div>
+                        </div>
+
+                        <div class="question-section">
+                            <div class="question">Sleep Quality (0-10)</div>
+                            <div class="slider-container">
+                                <span>Poor</span>
+                                <input type="range" min="0" max="10" value="5" class="slider" id="quality-${day}" oninput="updateSlider('quality', ${day})">
+                                <span>Great</span>
+                                <div class="slider-value" id="quality-val-${day}">5</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section ${currentTab === 'symptoms' ? 'active' : ''}" id="symptoms-${day}">
+                        <div class="question-section">
+                            <div class="question">Cataplexy? <span class="optional-badge">OPTIONAL</span></div>
+                            <div class="yes-no-toggle">
+                                <button type="button" class="toggle-btn" onclick="toggleBtn('cataplexy', ${day}, 'yes')">Yes</button>
+                                <button type="button" class="toggle-btn selected" onclick="toggleBtn('cataplexy', ${day}, 'no')">No</button>
+                            </div>
+                        </div>
+
+                        <div class="question-section">
+                            <div class="question">Sleep Paralysis? <span class="optional-badge">OPTIONAL</span></div>
+                            <div class="yes-no-toggle">
+                                <button type="button" class="toggle-btn" onclick="toggleBtn('paralysis', ${day}, 'yes')">Yes</button>
+                                <button type="button" class="toggle-btn selected" onclick="toggleBtn('paralysis', ${day}, 'no')">No</button>
+                            </div>
+                        </div>
+
+                        <div class="question-section">
+                            <div class="question">Hallucinations? <span class="optional-badge">OPTIONAL</span></div>
+                            <div class="yes-no-toggle">
+                                <button type="button" class="toggle-btn" onclick="toggleBtn('hallucinations', ${day}, 'yes')">Yes</button>
+                                <button type="button" class="toggle-btn selected" onclick="toggleBtn('hallucinations', ${day}, 'no')">No</button>
+                            </div>
+                        </div>
+
+                        <div class="question-section">
+                            <div class="question">Cognitive Fog (0-10)</div>
+                            <div class="slider-container">
+                                <span>Clear</span>
+                                <input type="range" min="0" max="10" value="5" class="slider" id="fog-${day}" oninput="updateSlider('fog', ${day})">
+                                <span>Foggy</span>
+                                <div class="slider-value" id="fog-val-${day}">5</div>
+                            </div>
+                        </div>
+
+                        <div class="question-section">
+                            <div class="question">Stress Level (0-10)</div>
+                            <div class="slider-container">
+                                <span>Calm</span>
+                                <input type="range" min="0" max="10" value="5" class="slider" id="stress-${day}" oninput="updateSlider('stress', ${day})">
+                                <span>Stressed</span>
+                                <div class="slider-value" id="stress-val-${day}">5</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section ${currentTab === 'daily' ? 'active' : ''}" id="daily-${day}">
+                        <div class="question-section">
+                            <div class="question">💊 Took Medication?</div>
+                            <div class="yes-no-toggle">
+                                <button type="button" class="toggle-btn" onclick="toggleBtn('meds', ${day}, 'yes')">Yes</button>
+                                <button type="button" class="toggle-btn" onclick="toggleBtn('meds', ${day}, 'no')">No</button>
+                            </div>
+                        </div>
+
+                        <div class="question-section">
+                            <div class="question">💧 Glasses of Water</div>
+                            <div class="quick-input">
+                                <input type="number" class="input-field" id="water-${day}" min="0" max="20" value="0">
+                                <span>glasses</span>
+                            </div>
+                        </div>
+
+                        <div class="question-section">
+                            <div class="question">☕ Caffeine <span class="optional-badge">OPTIONAL</span></div>
+                            <div class="quick-input">
+                                <input type="number" class="input-field" id="caffeine-${day}" min="0" max="10" value="0">
+                                <span>servings</span>
+                            </div>
+                        </div>
+
+                        <div class="question-section">
+                            <div class="question">🏃 Exercise? <span class="optional-badge">OPTIONAL</span></div>
+                            <div class="yes-no-toggle">
+                                <button type="button" class="toggle-btn" onclick="toggleBtn('exercise', ${day}, 'yes')">Yes</button>
+                                <button type="button" class="toggle-btn selected" onclick="toggleBtn('exercise', ${day}, 'no')">No</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function initializeDays() {
+            const container = document.getElementById('dayContainer');
+            for (let day = 1; day <= 5; day++) {
+                container.innerHTML += createDayHTML(day);
+                
+                // Initialize data structure
+                dayData[day] = {
+                    attacks: null,
+                    attackCount: 0,
+                    meds: null,
+                    cataplexy: 'no',
+                    paralysis: 'no',
+                    hallucinations: 'no',
+                    exercise: 'no'
+                };
+            }
+            updateNavButtons();
+        }
+
+        function updateNavButtons() {
+            const navButtons = document.getElementById('navButtons');
+            if (currentDay === 1) {
+                navButtons.innerHTML = '<button class="btn next-btn" onclick="nextDay()">Next Day →</button>';
+            } else if (currentDay === 5) {
+                navButtons.innerHTML = '<button class="btn back-btn" onclick="prevDay()">← Back</button><button class="btn next-btn" onclick="showSummary()">View Summary</button>';
+            } else {
+                navButtons.innerHTML = '<button class="btn back-btn" onclick="prevDay()">← Back</button><button class="btn next-btn" onclick="nextDay()">Next Day →</button>';
+            }
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            const sections = document.querySelectorAll(`#day${currentDay} .section`);
+            const tabs = document.querySelectorAll(`#day${currentDay} .tab-btn`);
+            
+            sections.forEach(s => s.classList.remove('active'));
+            tabs.forEach(t => t.classList.remove('active'));
+            
+            document.getElementById(`${tab}-${currentDay}`).classList.add('active');
+            tabs[['sleepiness', 'sleep', 'symptoms', 'daily'].indexOf(tab)].classList.add('active');
+        }
+
+        function updateSlider(type, day) {
+            const value = document.getElementById(`${type}-${day}`).value;
+            document.getElementById(`${type}-val-${day}`).textContent = value;
+        }
+
+        function toggleBtn(type, day, value) {
+            const parent = event.target.parentElement;
+            const buttons = parent.querySelectorAll('.toggle-btn');
+            buttons.forEach(b => b.classList.remove('selected'));
+            event.target.classList.add('selected');
+            
+            dayData[day][type] = value;
+            
+            // Show attack count if yes
+            if (type === 'attacks' && value === 'yes') {
+                document.getElementById(`attack-num-${day}`).style.display = 'block';
+            } else if (type === 'attacks' && value === 'no') {
+                document.getElementById(`attack-num-${day}`).style.display = 'none';
+            }
+        }
+
+        function validateDay(day) {
+            const data = dayData[day];
+            
+            if (data.attacks === null || data.meds === null) {
+                return false;
+            }
+            
+            const water = document.getElementById(`water-${day}`).value;
+            if (!water || water === '') {
+                return false;
+            }
+            
+            return true;
+        }
+
+        function saveDay(day) {
+            dayData[day].sleepiness = parseInt(document.getElementById(`sleepiness-${day}`).value);
+            dayData[day].naps = parseInt(document.getElementById(`naps-${day}`).value) || 0;
+            dayData[day].attackCount = dayData[day].attacks === 'yes' ? (parseInt(document.getElementById(`attack-count-${day}`).value) || 0) : 0;
+            dayData[day].sleepHours = parseFloat(document.getElementById(`sleep-hrs-${day}`).value) || 0;
+            dayData[day].awakenings = parseInt(document.getElementById(`awakenings-${day}`).value) || 0;
+            dayData[day].grogginess = parseInt(document.getElementById(`grogginess-${day}`).value);
+            dayData[day].quality = parseInt(document.getElementById(`quality-${day}`).value);
+            dayData[day].fog = parseInt(document.getElementById(`fog-${day}`).value);
+            dayData[day].stress = parseInt(document.getElementById(`stress-${day}`).value);
+            dayData[day].water = parseInt(document.getElementById(`water-${day}`).value) || 0;
+            dayData[day].caffeine = parseInt(document.getElementById(`caffeine-${day}`).value) || 0;
+        }
+
+        function nextDay() {
+            if (!validateDay(currentDay)) {
+                document.getElementById('errorMsg').classList.add('show');
+                return;
+            }
+            
+            document.getElementById('errorMsg').classList.remove('show');
+            saveDay(currentDay);
+            
+            document.getElementById(`day${currentDay}`).classList.remove('active');
+            currentDay++;
+            document.getElementById(`day${currentDay}`).classList.add('active');
+            document.getElementById('dayIndicator').textContent = `Day ${currentDay}`;
+            
+            updateProgressDots();
+            updateNavButtons();
+            window.scrollTo(0, 0);
+        }
+
+        function prevDay() {
+            document.getElementById(`day${currentDay}`).classList.remove('active');
+            currentDay--;
+            document.getElementById(`day${currentDay}`).classList.add('active');
+            document.getElementById('dayIndicator').textContent = `Day ${currentDay}`;
+            
+            updateProgressDots();
+            updateNavButtons();
+            window.scrollTo(0, 0);
+        }
+
+        function updateProgressDots() {
+            const container = document.getElementById('progressDots');
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= 5; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                if (i < currentDay) dot.classList.add('completed');
+                if (i === currentDay) dot.classList.add('current');
+                container.appendChild(dot);
+            }
+        }
+
+        function showSummary() {
+            if (!validateDay(5)) {
+                document.getElementById('errorMsg').classList.add('show');
+                return;
+            }
+            
+            saveDay(5);
+            
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('summaryPage').classList.add('show');
+            
+            // Calculate summaries
+            let totalSleepiness = 0, totalAttacks = 0, medDays = 0, totalWater = 0;
+            
+            for (let i = 1; i <= 5; i++) {
+                totalSleepiness += dayData[i].sleepiness;
+                totalAttacks += dayData[i].attackCount;
+                if (dayData[i].meds === 'yes') medDays++;
+                totalWater += dayData[i].water;
+            }
+            
+            document.getElementById('avg-sleepiness').textContent = (totalSleepiness / 5).toFixed(1);
+            document.getElementById('total-attacks').textContent = totalAttacks;
+            document.getElementById('med-compliance').textContent = `${medDays}/5`;
+            document.getElementById('avg-water').textContent = (totalWater / 5).toFixed(1);
+            
+            createCharts();
+            window.scrollTo(0, 0);
+        }
+
+        function createCharts() {
+            const labels = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'];
+            
+            // Main chart
+            const ctx1 = document.getElementById('mainChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Sleepiness',
+                        data: [1,2,3,4,5].map(d => dayData[d].sleepiness),
+                        borderColor: '#ffb3ba',
+                        backgroundColor: 'rgba(255,179,186,0.2)',
+                        tension: 0.4
+                    }, {
+                        label: 'Sleep Quality',
+                        data: [1,2,3,4,5].map(d => dayData[d].quality),
+                        borderColor: '#8ec5fc',
+                        backgroundColor: 'rgba(142,197,252,0.2)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true, max: 10 }
+                    }
+                }
+            });
+            
+            // Symptoms chart
+            const ctx2 = document.getElementById('symptomsChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Sleep Attacks',
+                        data: [1,2,3,4,5].map(d => dayData[d].attackCount),
+                        backgroundColor: '#ff9aa2'
+                    }, {
+                        label: 'Cognitive Fog',
+                        data: [1,2,3,4,5].map(d => dayData[d].fog),
+                        backgroundColor: '#e0c3fc'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        function restartTracker() {
+            location.reload();
+        }
+
+        // Initialize
+        initializeDays();
+        updateProgressDots();
+    </script>
+</body>
+</html>
