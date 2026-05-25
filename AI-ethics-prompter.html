@@ -22,6 +22,10 @@
     --surface: #f2faf6;
     --white: #ffffff;
     --card-shadow: 0 2px 20px rgba(15,61,46,0.08);
+    --water-blue: #2980b9;
+    --water-blue-light: #5dade2;
+    --water-blue-pale: #d6eaf8;
+    --water-blue-deep: #1a5276;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -103,7 +107,7 @@
     margin: 0 auto;
     padding: 0 32px;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     divide-x: 1px solid var(--border);
   }
   .stat-item {
@@ -324,6 +328,18 @@
   .meter-fill.medium { background: var(--amber); }
   .meter-fill.low { background: var(--green-light); }
 
+  .water-meter .meter-track { background: #d6eaf8; }
+  .water-meter .meter-fill { background: var(--water-blue-light); }
+  .water-meter .meter-fill.high { background: var(--red); }
+  .water-meter .meter-fill.medium { background: var(--water-blue); }
+  .water-meter .meter-fill.low { background: var(--water-blue-light); }
+  .result-panel.water {
+    background: var(--water-blue-pale);
+    border-color: var(--water-blue-light);
+  }
+  .result-panel.water h3 { color: var(--water-blue-deep); }
+  .result-panel.water p { color: #1a3a50; }
+
   .score-badge {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 6px 14px;
@@ -334,6 +350,21 @@
   .score-badge.concern { background: var(--red-pale); color: var(--red); }
   .score-badge.moderate { background: var(--amber-pale); color: #8a5a00; }
   .score-badge.low-impact { background: var(--green-pale); color: var(--green-deep); }
+
+  .stat-item.water-stat {
+    background: linear-gradient(135deg, #d6eaf8 0%, #e8f4f8 100%);
+    position: relative;
+  }
+  .stat-item.water-stat .stat-value { color: var(--water-blue); }
+  .water-counter { font-variant-numeric: tabular-nums; }
+  .water-drop-icon {
+    display: inline-block;
+    animation: waterDrop 2s ease-in-out infinite;
+  }
+  @keyframes waterDrop {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
 
   .tips-list {
     list-style: none;
@@ -623,6 +654,139 @@
   }
   .btn-retry:hover { background: var(--green-mid); }
 
+  /* === WATER ETHICS PRACTICE === */
+  .water-practice-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+  }
+  .water-practice-header {
+    background: linear-gradient(135deg, var(--water-blue-deep) 0%, var(--water-blue) 100%);
+    padding: 24px 28px;
+    color: white;
+  }
+  .water-practice-header h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    font-weight: 400;
+    margin-bottom: 6px;
+  }
+  .water-practice-header p { font-size: 14px; opacity: 0.75; }
+  .water-practice-body { padding: 28px; }
+  .scenario-card {
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    transition: all 0.3s;
+  }
+  .scenario-card.active { border-color: var(--water-blue-light); background: #f0f8ff; }
+  .scenario-card.completed { opacity: 0.7; }
+  .scenario-question {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .scenario-context {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    background: var(--sky);
+    border-radius: 8px;
+    line-height: 1.6;
+  }
+  .scenario-options { display: flex; flex-direction: column; gap: 10px; }
+  .scenario-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    text-align: left;
+    background: white;
+    color: var(--text);
+    transition: all 0.2s;
+    line-height: 1.5;
+  }
+  .scenario-option:hover:not(:disabled):not(.selected) {
+    border-color: var(--water-blue-light);
+    background: #f0f8ff;
+  }
+  .scenario-option.best { background: var(--green-pale); border-color: var(--green-light); }
+  .scenario-option.worst { background: var(--red-pale); border-color: #e57070; }
+  .scenario-option.ok { background: var(--amber-pale); border-color: #f0c060; }
+  .scenario-option:disabled { cursor: default; }
+  .water-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .water-badge.save { background: var(--green-pale); color: var(--green-deep); }
+  .water-badge.waste { background: var(--red-pale); color: var(--red); }
+  .water-badge.neutral { background: var(--amber-pale); color: #8a5a00; }
+  .scenario-feedback {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.6;
+    display: none;
+  }
+  .scenario-feedback.show { display: block; }
+  .scenario-feedback.best { background: var(--green-pale); color: var(--green-deep); border: 1px solid var(--green-light); }
+  .scenario-feedback.worst { background: var(--red-pale); color: var(--red); border: 1px solid #f0a0a0; }
+  .scenario-feedback.ok { background: var(--amber-pale); color: #5a3800; border: 1px solid #f0c060; }
+  .water-tracker {
+    background: linear-gradient(135deg, var(--water-blue-pale) 0%, #e8f4f8 100%);
+    border: 1px solid var(--water-blue-light);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    text-align: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .tracker-stat { display: flex; flex-direction: column; align-items: center; }
+  .tracker-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--water-blue);
+    line-height: 1;
+  }
+  .tracker-value.saved { color: var(--green-mid); }
+  .tracker-value.wasted { color: var(--red); }
+  .tracker-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-top: 4px;
+  }
+  .scenario-nav {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
   /* === LOADING SPINNER === */
   .loading-dots {
     display: inline-flex; gap: 5px; align-items: center;
@@ -677,9 +841,13 @@
       <span class="stat-value">10×</span>
       <span class="stat-label">more energy than a Google search</span>
     </div>
+    <div class="stat-item water-stat">
+      <span class="stat-value"><span class="water-drop-icon">💧</span> <span class="water-counter" id="water-counter">0</span>ml</span>
+      <span class="stat-label">water used this session (est.)</span>
+    </div>
     <div class="stat-item">
       <span class="stat-value">500ml+</span>
-      <span class="stat-label">water to cool data centers per query</span>
+      <span class="stat-label">water to cool data centers per 20 queries</span>
     </div>
   </div>
 </div>
@@ -693,6 +861,10 @@
     <button class="mode-tab" onclick="showTab('learn')" role="tab">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
       Learn
+    </button>
+    <button class="mode-tab" onclick="showTab('water-practice')" role="tab">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+      Water Ethics
     </button>
     <button class="mode-tab" onclick="showTab('quiz')" role="tab">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
@@ -760,6 +932,34 @@
         </div>
       </div>
 
+      <div class="result-grid" style="margin-bottom:20px;">
+        <div class="result-panel water" style="grid-column: 1 / -1;">
+          <h3>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+            Water Usage Impact
+          </h3>
+          <p id="result-water-text"></p>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:14px;">
+            <div>
+              <div class="impact-meter water-meter">
+                <div class="impact-label">
+                  <span>Water Consumption</span>
+                  <span id="water-level-label">—</span>
+                </div>
+                <div class="meter-track">
+                  <div class="meter-fill" id="water-meter-fill" style="width:0%"></div>
+                </div>
+              </div>
+            </div>
+            <div style="text-align:center; padding:8px;">
+              <div style="font-family:'DM Serif Display',serif; font-size:32px; color:var(--water-blue);" id="water-ml-display">~0ml</div>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">estimated water for this prompt</div>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:2px;" id="water-comparison"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="result-full">
         <h3>💡 Responsible Alternatives &amp; Tips</h3>
         <ul class="tips-list" id="result-tips"></ul>
@@ -794,11 +994,11 @@
             <div class="learn-icon" style="background:#d6eaff;">💧</div>
             <div>
               <h3>Water &amp; Data Centers</h3>
-              <p>AI data centers consume enormous quantities of water for cooling — a hidden environmental cost.</p>
+              <p>AI data centers consume enormous quantities of water for cooling — a hidden environmental cost with regional impacts.</p>
             </div>
           </div>
           <div class="learn-card-footer">
-            <span>4 key facts</span>
+            <span>8 key facts + comparisons</span>
             <span>Read →</span>
           </div>
         </div>
@@ -864,12 +1064,49 @@
     </div>
   </div>
 
+  <!-- ===================== WATER ETHICS PRACTICE TAB ===================== -->
+  <div id="tab-water-practice" class="section">
+    <div class="water-practice-card">
+      <div class="water-practice-header">
+        <h2>Water Ethics Practice</h2>
+        <p>Make decisions about AI usage and see their real-time water impact</p>
+      </div>
+      <div class="water-practice-body">
+        <div class="water-tracker" id="water-practice-tracker">
+          <div class="tracker-stat">
+            <span class="tracker-value" id="tracker-scenarios">0/5</span>
+            <span class="tracker-label">Scenarios completed</span>
+          </div>
+          <div class="tracker-stat">
+            <span class="tracker-value saved" id="tracker-saved">0ml</span>
+            <span class="tracker-label">Water saved</span>
+          </div>
+          <div class="tracker-stat">
+            <span class="tracker-value wasted" id="tracker-wasted">0ml</span>
+            <span class="tracker-label">Water used</span>
+          </div>
+          <div class="tracker-stat">
+            <span class="tracker-value" id="tracker-glasses">0</span>
+            <span class="tracker-label">Glasses of water equivalent</span>
+          </div>
+        </div>
+        <div id="water-scenarios-container"></div>
+        <div id="water-practice-complete" style="display:none; text-align:center; padding:32px;">
+          <div style="font-size:48px; margin-bottom:16px;">💧</div>
+          <h3 style="font-family:'DM Serif Display',serif; font-size:24px; margin-bottom:12px;" id="water-practice-message"></h3>
+          <p style="color:var(--text-muted); margin-bottom:24px;" id="water-practice-summary"></p>
+          <button class="btn-retry" onclick="startWaterPractice()">Try again</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ===================== QUIZ TAB ===================== -->
   <div id="tab-quiz" class="section">
     <div class="quiz-card">
       <div class="quiz-top">
         <h2>Test Your Knowledge</h2>
-        <span class="quiz-progress" id="quiz-progress">Question 1 of 8</span>
+        <span class="quiz-progress" id="quiz-progress">Question 1 of 11</span>
       </div>
       <div class="quiz-body" id="quiz-body">
         <div class="quiz-q" id="quiz-question"></div>
@@ -882,7 +1119,7 @@
       <div class="score-screen" id="score-screen">
         <div class="score-circle">
           <span class="score-num" id="final-score">0</span>
-          <span class="score-denom" id="final-denom">/ 8</span>
+          <span class="score-denom" id="final-denom">/ 11</span>
         </div>
         <h3 id="score-message">Well done!</h3>
         <p id="score-sub">Keep learning about AI ethics and environmental impact.</p>
@@ -893,6 +1130,34 @@
 </main>
 
 <script>
+// ========================
+// SESSION WATER TRACKING
+// ========================
+let sessionWaterMl = 0;
+let sessionQueryCount = 0;
+
+function updateSessionWater(ml) {
+  sessionWaterMl += ml;
+  sessionQueryCount++;
+  const counterEl = document.getElementById('water-counter');
+  if (counterEl) {
+    animateCounter(counterEl, sessionWaterMl - ml, sessionWaterMl);
+  }
+}
+
+function animateCounter(el, from, to) {
+  const duration = 800;
+  const start = performance.now();
+  function tick(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(from + (to - from) * eased);
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
 // ========================
 // TAB NAVIGATION
 // ========================
@@ -991,6 +1256,48 @@ function displayResults(r) {
     levelLabel.style.color = 'var(--green-light)';
   }
 
+  // Water usage calculation
+  const prompt = document.getElementById('prompt-input').value;
+  const promptLength = prompt.length;
+  const complexityMultiplier = (r.impactScore || 30) / 50;
+  const baseWaterMl = 10;
+  const lengthFactor = Math.min(promptLength / 100, 5);
+  const waterMl = Math.round(baseWaterMl + (lengthFactor * 8 * complexityMultiplier));
+
+  const waterText = document.getElementById('result-water-text');
+  waterText.textContent = `This prompt uses approximately ${waterMl}ml of water for data center cooling. ` +
+    (waterMl > 40 ? 'This is a high-water-impact query due to its complexity and length. Consider simplifying or batching similar requests.' :
+     waterMl > 20 ? 'This is a moderate water usage query. Efficient prompting can help reduce this impact.' :
+     'This is a relatively low water usage query. Good job keeping it concise!');
+
+  const waterMlDisplay = document.getElementById('water-ml-display');
+  waterMlDisplay.textContent = `~${waterMl}ml`;
+
+  const waterComparison = document.getElementById('water-comparison');
+  const glasses = (waterMl / 250).toFixed(1);
+  const sips = Math.round(waterMl / 15);
+  waterComparison.textContent = `≈ ${glasses} glasses of drinking water ≈ ${sips} sips`;
+
+  const waterFill = document.getElementById('water-meter-fill');
+  const waterLabel = document.getElementById('water-level-label');
+  const waterPct = Math.min(100, Math.max(0, (waterMl / 60) * 100));
+  waterFill.style.width = waterPct + '%';
+  if (waterMl >= 40) {
+    waterFill.className = 'meter-fill high';
+    waterLabel.textContent = 'High';
+    waterLabel.style.color = 'var(--red)';
+  } else if (waterMl >= 20) {
+    waterFill.className = 'meter-fill medium';
+    waterLabel.textContent = 'Medium';
+    waterLabel.style.color = 'var(--water-blue)';
+  } else {
+    waterFill.className = 'meter-fill low';
+    waterLabel.textContent = 'Low';
+    waterLabel.style.color = 'var(--water-blue-light)';
+  }
+
+  updateSessionWater(waterMl);
+
   // Tips
   const tipsList = document.getElementById('result-tips');
   tipsList.innerHTML = (r.tips || []).map(t => `<li>${t}</li>`).join('');
@@ -1025,18 +1332,24 @@ const learnContent = {
   water: {
     emoji: '💧',
     title: 'Water & Data Centers',
-    intro: 'Water is essential for cooling data centers. This is an often-overlooked environmental cost of AI that can stress local water supplies.',
+    intro: 'Water is essential for cooling data centers. This is an often-overlooked environmental cost of AI that can stress local water supplies, especially in drought-prone areas.',
     facts: [
       { num: '500ml–1L', desc: 'Estimated water consumed per 20–50 AI queries for data center cooling' },
+      { num: '~25ml', desc: 'Estimated water per single AI text query — equivalent to a large sip of drinking water' },
+      { num: '~150ml', desc: 'Estimated water per complex AI image generation — equivalent to a small glass of drinking water' },
       { num: 'Billions of liters', desc: 'Used annually by major AI companies to cool their data centers globally' },
       { num: '40%', desc: 'Of fresh water withdrawal in the US goes to power plant and industrial cooling' },
-      { num: '100+', desc: 'Water-stressed regions where data centers currently operate, competing with local needs' }
+      { num: '100+', desc: 'Water-stressed regions where data centers currently operate, competing with local needs' },
+      { num: '1 AI query', desc: 'Uses roughly the same water as keeping a faucet running for 2 seconds' },
+      { num: '1,000 queries', desc: 'Consumes about the same water as a 10-minute shower (~25 liters)' }
     ],
     principles: [
       { title: 'Cooling technology', body: 'Data centers use water for evaporative cooling. Air-cooled and liquid-cooled alternatives exist but are more expensive to operate.' },
       { title: 'Local impact', body: 'A data center in an arid region (Arizona, Nevada) has a far higher local water stress impact than one in a water-rich region.' },
+      { title: 'Regional water stress', body: 'Data centers in water-stressed regions like the American Southwest, parts of India, and the Middle East compete directly with agriculture and drinking water supplies.' },
       { title: 'Indirect use', body: 'Even facilities not directly using water often rely on water-cooled electricity generation upstream.' },
-      { title: 'Transparency gap', body: 'Water usage data is rarely disclosed publicly, making it hard to hold companies accountable for water consumption.' }
+      { title: 'Transparency gap', body: 'Water usage data is rarely disclosed publicly, making it hard to hold companies accountable for water consumption.' },
+      { title: 'Water per query type', body: 'Simple text queries use less water than complex tasks. Code generation, image creation, and long conversations consume significantly more cooling water.' }
     ]
   },
   bias: {
@@ -1213,6 +1526,24 @@ const questions = [
     options: ['Share all relevant details for the best answer', 'Never include real people\'s names, addresses, or sensitive personal data', 'AI companies delete all data immediately, so privacy doesn\'t matter', 'Share financial details for more accurate financial advice'],
     answer: 1,
     feedback: 'AI systems may store your prompts for safety review, model improvement, or other purposes. Avoid including Personally Identifiable Information (PII) unless absolutely necessary and you understand the service\'s privacy policy.'
+  },
+  {
+    q: 'Approximately how much water does a single AI text query consume for data center cooling?',
+    options: ['Less than 1ml — negligible', 'About 10–25ml — a large sip of water', 'About 500ml — a full water bottle', 'About 2 liters — a large jug'],
+    answer: 1,
+    feedback: 'A single AI query uses roughly 10–25ml of water for cooling. While small individually, with billions of queries daily this adds up to enormous water consumption — especially concerning in water-stressed regions.'
+  },
+  {
+    q: 'Why is AI water usage particularly concerning in regions like Arizona or parts of India?',
+    options: ['Because water is more expensive there', 'Because these are water-stressed regions where data centers compete with drinking and agricultural water supplies', 'Because servers run hotter in warm climates', 'Because regulations prohibit water use for cooling'],
+    answer: 1,
+    feedback: 'In water-stressed regions, data centers directly compete with essential water needs like drinking water and agriculture. Building data centers in these areas exacerbates existing water scarcity problems for local communities.'
+  },
+  {
+    q: 'Which approach would conserve the most water when using AI?',
+    options: ['Asking the same question to multiple AI models to compare answers', 'Writing one clear, specific prompt instead of iterating through many vague ones', 'Generating images instead of text since images use less water', 'Using AI late at night when water usage is lower'],
+    answer: 1,
+    feedback: 'Each AI query consumes water for cooling. By writing clear, specific prompts that get the right answer on the first try, you minimize the total number of queries needed — directly reducing water consumption. Time of day does not significantly affect per-query water use.'
   }
 ];
 
@@ -1302,8 +1633,207 @@ function showScore() {
   document.getElementById('score-sub').textContent = sub;
 }
 
-// Init quiz on load
+// ========================
+// WATER ETHICS PRACTICE
+// ========================
+const waterScenarios = [
+  {
+    question: 'You need to write a short email to a colleague. How do you approach this?',
+    context: 'A simple, everyday communication task that most people can handle themselves.',
+    options: [
+      { text: 'Write the email yourself — it\'s a simple task you can handle', waterMl: 0, rating: 'best', badge: 'Saves 25ml' },
+      { text: 'Ask AI to draft the email with a clear, specific prompt', waterMl: 20, rating: 'ok', badge: 'Uses ~20ml' },
+      { text: 'Ask AI to generate 10 different versions so you can pick the best one', waterMl: 200, rating: 'worst', badge: 'Uses ~200ml' }
+    ],
+    feedback: {
+      best: 'Excellent choice! Writing a simple email yourself saves water and energy entirely. Not every task needs AI assistance.',
+      ok: 'Reasonable, but a simple email is something most people can write themselves. The ~20ml of water used could be saved entirely.',
+      worst: 'Generating 10 variations for a simple email wastes significant water. That\'s nearly a full glass of drinking water for an unnecessary task.'
+    }
+  },
+  {
+    question: 'You\'re researching a complex scientific topic for a school paper. What\'s your approach?',
+    context: 'Complex research tasks can benefit from AI assistance, but approach matters.',
+    options: [
+      { text: 'Ask one well-structured question covering all aspects you need', waterMl: 25, rating: 'best', badge: 'Uses ~25ml' },
+      { text: 'Ask 5 separate broad questions on different subtopics', waterMl: 125, rating: 'ok', badge: 'Uses ~125ml' },
+      { text: 'Ask 20+ follow-up questions, rephrasing until the answer is perfect', waterMl: 500, rating: 'worst', badge: 'Uses ~500ml' }
+    ],
+    feedback: {
+      best: 'Great strategy! A single well-crafted prompt is both more effective and more water-efficient. Clear prompts get better results with less waste.',
+      ok: 'Breaking into subtopics can help, but 5 queries use 5× the water. Try batching related questions into fewer, more comprehensive prompts.',
+      worst: 'Excessive iteration uses enormous amounts of water. 500ml is equivalent to 2 full glasses of drinking water — just for rephrasing questions!'
+    }
+  },
+  {
+    question: 'Your company wants to generate product images using AI. You\'re in a water-stressed region (Arizona). What do you recommend?',
+    context: 'AI image generation is particularly water-intensive and regional context matters for ethical decisions.',
+    options: [
+      { text: 'Recommend scheduling generation during off-peak hours and using a cloud provider in a water-rich region', waterMl: 150, rating: 'best', badge: 'Reduces local impact' },
+      { text: 'Generate all images locally without considering water impact', waterMl: 600, rating: 'worst', badge: 'High local stress' },
+      { text: 'Generate only the most essential images and use stock photos for the rest', waterMl: 75, rating: 'ok', badge: 'Uses ~75ml' }
+    ],
+    feedback: {
+      best: 'Thoughtful approach! Considering regional water stress and routing compute to water-rich regions shows strong water ethics awareness.',
+      ok: 'Using fewer AI-generated images helps, but you missed the opportunity to consider regional water impact — a key factor in water ethics.',
+      worst: 'Ignoring regional water stress while generating many images in an arid area directly competes with local drinking water and agricultural needs.'
+    }
+  },
+  {
+    question: 'A student asks you to help them understand a math concept. How do you use AI?',
+    context: 'Educational use of AI can be valuable, but efficiency matters.',
+    options: [
+      { text: 'Ask AI to explain the concept once with a clear example, then study the response', waterMl: 20, rating: 'best', badge: 'Uses ~20ml' },
+      { text: 'Have a back-and-forth conversation with AI asking it to re-explain in different ways 8 times', waterMl: 160, rating: 'worst', badge: 'Uses ~160ml' },
+      { text: 'Ask AI to explain it, then ask 2-3 targeted follow-up questions', waterMl: 60, rating: 'ok', badge: 'Uses ~60ml' }
+    ],
+    feedback: {
+      best: 'One clear explanation is usually enough if you take time to study it. This saves the most water while still getting AI assistance where it\'s most helpful.',
+      ok: 'A few follow-ups are reasonable for complex topics, but try to make each question specific to reduce total queries needed.',
+      worst: 'Eight re-explanations waste significant water. If the first explanation isn\'t clear, try asking one specific follow-up about what confused you.'
+    }
+  },
+  {
+    question: 'You want to create a presentation with AI assistance. What\'s the most water-conscious approach?',
+    context: 'Presentations involve text, structure, and sometimes image generation — each with water costs.',
+    options: [
+      { text: 'Ask AI to generate the full outline, then write slides yourself using the outline as a guide', waterMl: 25, rating: 'best', badge: 'Uses ~25ml' },
+      { text: 'Have AI generate every slide\'s content, speaker notes, and multiple image suggestions', waterMl: 300, rating: 'worst', badge: 'Uses ~300ml' },
+      { text: 'Ask AI to help with the outline and key talking points, create your own visuals', waterMl: 50, rating: 'ok', badge: 'Uses ~50ml' }
+    ],
+    feedback: {
+      best: 'Smart approach! Using AI for structure but writing content yourself minimizes water usage while leveraging AI\'s strengths in organization.',
+      ok: 'Good balance of AI assistance and personal effort. Creating your own visuals avoids the high water cost of AI image generation.',
+      worst: 'Having AI generate everything including multiple image suggestions is extremely water-intensive. A 300ml query equals more than a full glass of drinking water.'
+    }
+  }
+];
+
+let waterPracticeState = {
+  currentScenario: 0,
+  completed: 0,
+  totalSaved: 0,
+  totalWasted: 0,
+  answers: []
+};
+
+function startWaterPractice() {
+  waterPracticeState = { currentScenario: 0, completed: 0, totalSaved: 0, totalWasted: 0, answers: [] };
+  document.getElementById('water-practice-complete').style.display = 'none';
+  document.getElementById('water-scenarios-container').style.display = 'block';
+  renderWaterScenario();
+  updateWaterTracker();
+}
+
+function renderWaterScenario() {
+  const container = document.getElementById('water-scenarios-container');
+  const scenario = waterScenarios[waterPracticeState.currentScenario];
+  if (!scenario) { showWaterPracticeComplete(); return; }
+
+  container.innerHTML = `
+    <div class="scenario-card active">
+      <div style="font-size:12px; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px;">
+        Scenario ${waterPracticeState.currentScenario + 1} of ${waterScenarios.length}
+      </div>
+      <div class="scenario-question">${scenario.question}</div>
+      <div class="scenario-context">${scenario.context}</div>
+      <div class="scenario-options">
+        ${scenario.options.map((opt, i) => `
+          <button class="scenario-option" onclick="selectWaterOption(${i})" id="water-opt-${i}">
+            <div style="flex:1;">${opt.text}</div>
+            <span class="water-badge ${opt.rating === 'best' ? 'save' : opt.rating === 'worst' ? 'waste' : 'neutral'}" style="visibility:hidden;" id="water-badge-${i}">${opt.badge}</span>
+          </button>
+        `).join('')}
+      </div>
+      <div class="scenario-feedback" id="scenario-feedback"></div>
+      <div class="scenario-nav">
+        <button class="btn-next" id="btn-next-scenario" style="display:none;" onclick="nextWaterScenario()">
+          ${waterPracticeState.currentScenario < waterScenarios.length - 1 ? 'Next scenario →' : 'See results →'}
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function selectWaterOption(idx) {
+  const scenario = waterScenarios[waterPracticeState.currentScenario];
+  const selected = scenario.options[idx];
+
+  // Disable all options and show badges
+  document.querySelectorAll('.scenario-option').forEach((btn, i) => {
+    btn.disabled = true;
+    const opt = scenario.options[i];
+    const badge = document.getElementById('water-badge-' + i);
+    badge.style.visibility = 'visible';
+    btn.classList.add(opt.rating);
+    if (i === idx) btn.style.outline = '2px solid var(--text)';
+  });
+
+  // Track water impact
+  const bestOption = scenario.options.find(o => o.rating === 'best');
+  const waterDiff = selected.waterMl - bestOption.waterMl;
+  if (waterDiff > 0) {
+    waterPracticeState.totalWasted += waterDiff;
+  } else {
+    waterPracticeState.totalSaved += Math.abs(waterDiff) || bestOption.waterMl;
+  }
+  waterPracticeState.completed++;
+  waterPracticeState.answers.push(selected.rating);
+
+  // Show feedback
+  const fb = document.getElementById('scenario-feedback');
+  fb.textContent = scenario.feedback[selected.rating];
+  fb.className = 'scenario-feedback show ' + selected.rating;
+
+  // Show next button
+  document.getElementById('btn-next-scenario').style.display = 'inline-flex';
+
+  updateWaterTracker();
+}
+
+function nextWaterScenario() {
+  waterPracticeState.currentScenario++;
+  if (waterPracticeState.currentScenario >= waterScenarios.length) {
+    showWaterPracticeComplete();
+  } else {
+    renderWaterScenario();
+  }
+}
+
+function updateWaterTracker() {
+  document.getElementById('tracker-scenarios').textContent = `${waterPracticeState.completed}/${waterScenarios.length}`;
+  document.getElementById('tracker-saved').textContent = `${waterPracticeState.totalSaved}ml`;
+  document.getElementById('tracker-wasted').textContent = `${waterPracticeState.totalWasted}ml`;
+  document.getElementById('tracker-glasses').textContent = ((waterPracticeState.totalWasted) / 250).toFixed(1);
+}
+
+function showWaterPracticeComplete() {
+  document.getElementById('water-scenarios-container').style.display = 'none';
+  const completeDiv = document.getElementById('water-practice-complete');
+  completeDiv.style.display = 'block';
+
+  const bestCount = waterPracticeState.answers.filter(a => a === 'best').length;
+  const pct = bestCount / waterScenarios.length;
+
+  let msg, summary;
+  if (pct >= 0.8) {
+    msg = 'Outstanding water ethics awareness!';
+    summary = `You made the most water-conscious choice in ${bestCount} of ${waterScenarios.length} scenarios, saving approximately ${waterPracticeState.totalSaved}ml of water. You understand the real impact of AI on water resources.`;
+  } else if (pct >= 0.4) {
+    msg = 'Good awareness, room to improve!';
+    summary = `You chose the best option ${bestCount} times. You used approximately ${waterPracticeState.totalWasted}ml more water than necessary. Review the scenarios to understand more water-efficient approaches.`;
+  } else {
+    msg = 'Time to rethink your water impact!';
+    summary = `Your choices would have used ${waterPracticeState.totalWasted}ml of extra water. That\'s about ${(waterPracticeState.totalWasted / 250).toFixed(1)} extra glasses of drinking water. Try again with water conservation in mind!`;
+  }
+
+  document.getElementById('water-practice-message').textContent = msg;
+  document.getElementById('water-practice-summary').textContent = summary;
+}
+
+// Init quiz and water practice on load
 startQuiz();
+startWaterPractice();
 </script>
 </body>
 </html>
