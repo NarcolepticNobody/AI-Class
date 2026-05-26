@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ROAD DODGER</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1a2e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Press Start 2P', monospace;
+  }
+  h1 {
+    color: #ff004d;
+    font-size: 14px;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px #7e2553;
+  }
+  canvas {
+    border: 4px solid #ff004d;
+    image-rendering: pixelated;
+    box-shadow: 0 0 30px #ff004d55, 0 0 60px #ff004d22;
+  }
+  #info {
+    color: #ffec27;
+    font-size: 7px;
+    margin-top: 10px;
+    text-align: center;
+    line-height: 2;
+  }
+</style>
+</head>
+<body>
+<h1>🚗 ROAD DODGER</h1>
+<canvas id="c" width="512" height="384"></canvas>
+<div id="info">
+  ↑ ↓ ← → or WASD to move &nbsp;|&nbsp; dodge the cars!<br>
+  press SPACE or ENTER to start / restart
+</div>
+
+<script>
+const C = document.getElementById('c');
+const ctx = C.getContext('2d');
+
+// PICO-8 palette
+const P = {
+  black:   '#000000',
+  darkblue:'#1d2b53',
+  darkpur: '#7e2553',
+  darkgrn: '#008751',
+  brown:   '#ab5236',
+  darkgray:'#5f574f',
+  gray:    '#c2c3c7',
+  white:   '#fff1e8',
+  red:     '#ff004d',
+  orange:  '#ffa300',
+  yellow:  '#ffec27',
+  green:   '#00e436',
+  blue:    '#29adff',
+  indigo:  '#83769c',
+  pink:    '#ff77a8',
+  peach:   '#ffccaa',
+};
+
+const W = 512, H = 384;
+const SCALE = 4; // pixel size for pico-8 feel
+const PW = W / SCALE; // 128
+const PH = H / SCALE; // 96
+
+// Game state
+let state = 'title'; // title, play, dead
+let score = 0;
+let hiScore = 0;
+let frame = 0;
+let cars = [];
+let roadOffset = 0;
+let cloudOffset = 0;
+
+// Road layout (in pico coords)
+const ROAD_TOP = 48;
+const ROAD_BOT = 88;
+const ROAD_MID = (ROAD_TOP + ROAD_BOT) / 2;
+const LANE1 = ROAD_TOP + 10; // y center of lane 1
+const LANE2 = ROAD_TOP + 22; // y center of lane 2
+const LANE3 = ROAD_TOP + 32; // y center of lane 3
+
+// Player
+let player = { x: 20, y: LANE2, w: 8, h: 5, dx: 0, dy: 0, color: P.blue, deadFrames: 0 };
+
+// Car colors
+const carColors = [P.red, P.orange, P.yellow, P.green, P.pink, P.peach, P.indigo];
+const laneYs = [LANE1, LANE2, LANE3];
+
+// Keys
+const keys = {};
+document.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if ((e.key === ' ' || e.key === 'Enter') && state !== 'play') startGame();
+});
+document.addEventListener('keyup', e => { keys[e.key] = false; });
+
+function startGame() {
+  state = 'play';
+  score = 0;
+  frame = 0;
+  cars = [];
+  player.x = 20;
+  player.y = LANE2;
+  player.dx = 0;
+  player.dy = 0;
+  player.deadFrames = 0;
+}
+
+// Mountains at top: precompute
+const mountains = [];
+for (let i = 0; i < 20; i++) {
+  mountains.push({
+    x: i * 8 + (Math.random() * 4 | 0),
+    h: 6 + (Math.random() * 8 | 0),
+    w: 10 + (Math.random() * 8 | 0),
+    dark: Math.random() > 0.5
+  });
+}
+
+// Clouds
+const clouds = [
+  { x: 10, y: 6, w: 18, h: 5 },
+  { x: 50, y: 4, w: 22, h: 6 },
+  { x: 90, y: 8, w: 15, h: 4 },
+  { x: 30, y: 12, w: 12, h: 4 },
+];
+
+function spawnCar() {
+  const lane = laneYs[Math.floor(Math.random() * laneYs.length)];
+  const speed = 1.5 + Math.random() * 1.5 + score * 0.002;
+  const col = carColors[Math.floor(Math.random() * carColors.length)];
+  cars.push({ x: PW + 2, y: lane, w: 10, h: 5, speed, color: col });
+}
+
+function update() {
+  if (state !== 'play') return;
+  frame++;
+  score++;
+  roadOffset = (roadOffset + 2) % 16;
+  cloudOffset = (cloudOffset + 0.3);
+
+  // Spawn cars
+  const spawnRate = Math.max(30, 80 - score * 0.02);
+  if (frame % Math.floor(spawnRate) === 0) spawnCar();
+
+  // Player movement
+  const spd = 1.2;
+  if ((keys['ArrowUp'] || keys['w'] || keys['W']) && player.y > ROAD_TOP + 4) player.y -= spd;
+  if ((keys['ArrowDown'] || keys['s'] || keys['S']) && player.y < ROAD_BOT - 4) player.y += spd;
+  if ((keys['ArrowLeft'] || keys['a'] || keys['A']) && player.x > 5) player.x -= spd;
+  if ((keys['ArrowRight'] || keys['d'] || keys['D']) && player.x < PW - 12) player.x += spd;
+
+  // Move cars
+  for (let c of cars) c.x -= c.speed;
+  cars = cars.filter(c => c.x > -20);
+
+  // Collision
+  for (let c of cars) {
+    if (
+      player.x < c.x + c.w - 1 &&
+      player.x + player.w - 1 > c.x + 1 &&
+      player.y < c.y + c.h - 1 &&
+      player.y + player.h - 1 > c.y + 1
+    ) {
+      state = 'dead';
+      if (score > hiScore) hiScore = score;
+    }
+  }
+}
+
+// --- Draw helpers (all in pico coords, then scaled) ---
+function px(x, y, col) {
+  ctx.fillStyle = col;
+  ctx.fillRect(x * SCALE, y * SCALE, SCALE, SCALE);
+}
+
+function rect(x, y, w, h, col) {
+  ctx.fillStyle = col;
+  ctx.fillRect(x * SCALE, y * SCALE, w * SCALE, h * SCALE);
+}
+
+function rectBorder(x, y, w, h, fill, border) {
+  rect(x, y, w, h, fill);
+  ctx.strokeStyle = border;
+  ctx.lineWidth = SCALE;
+  ctx.strokeRect(x * SCALE + SCALE/2, y * SCALE + SCALE/2, (w - 1) * SCALE, (h - 1) * SCALE);
+}
+
+function text8(str, x, y, col) {
+  ctx.fillStyle = col;
+  ctx.font = `${SCALE * 5}px 'Press Start 2P', monospace`;
+  ctx.fillText(str, x * SCALE, y * SCALE);
+}
+
+function drawCar(c) {
+  const x = Math.round(c.x), y = Math.round(c.y);
+  // body
+  rect(x + 1, y + 1, c.w - 2, c.h - 2, c.color);
+  // roof
+  rect(x + 2, y, c.w - 5, 2, P.white);
+  // windows
+  rect(x + 3, y, 2, 1, P.blue);
+  // wheels
+  px(x + 1, y + c.h - 1, P.black);
+  px(x + c.w - 2, y + c.h - 1, P.black);
+  px(x + 1, y, P.black);
+  px(x + c.w - 2, y, P.black);
+  // headlights (back = right side since moving left)
+  px(x + c.w - 1, y + 1, P.yellow);
+  px(x + c.w - 1, y + c.h - 2, P.yellow);
+}
+
+function drawPlayer(p) {
+  const x = Math.round(p.x), y = Math.round(p.y);
+  // Your character: a cool blue car / little person shape
+  // Body (car-like character)
+  rect(x, y + 1, p.w, p.h - 2, P.blue);
+  // Cockpit
+  rect(x + 1, y, p.w - 3, 2, P.peach);
+  // Eye
+  px(x + 2, y, P.black);
+  // Wheels
+  px(x, y + p.h - 1, P.darkgray);
+  px(x + p.w - 2, y + p.h - 1, P.darkgray);
+  px(x, y, P.darkgray);
+  px(x + p.w - 2, y, P.darkgray);
+  // Headlights
+  px(x + p.w - 1, y + 1, P.yellow);
+  px(x + p.w - 1, y + p.h - 2, P.yellow);
+
+  // Flash on death
+  if (state === 'dead') {
+    const f = Math.floor(Date.now() / 80) % 2;
+    if (f) rect(x - 1, y - 1, p.w + 2, p.h + 2, P.red);
+  }
+}
+
+function drawScene() {
+  // Sky gradient blocks
+  rect(0, 0, PW, ROAD_TOP, P.darkblue);
+  rect(0, ROAD_TOP - 10, PW, 10, '#1a3a6e');
+
+  // Clouds
+  for (let cl of clouds) {
+    const cx = ((cl.x - cloudOffset * 0.3 + PW * 2) % (PW + 30)) - 10;
+    rect(cx, cl.y, cl.w, cl.h, '#ffffff33');
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.fillRect((cx + 1) * SCALE, (cl.y - 1) * SCALE, (cl.w - 2) * SCALE, (cl.h + 1) * SCALE);
+    rect(cx + 2, cl.y - 1, cl.w - 4, 1, P.white);
+  }
+
+  // Mountains
+  for (let m of mountains) {
+    const col = m.dark ? '#29507a' : '#3d6b9c';
+    // triangle via fillRect staircase
+    for (let row = 0; row < m.h; row++) {
+      const width = Math.max(1, Math.round((row / m.h) * m.w));
+      const bx = m.x + Math.floor((m.w - width) / 2);
+      rect(bx, ROAD_TOP - m.h + row, width, 1, col);
+    }
+    // snow cap
+    rect(m.x + Math.floor(m.w / 2) - 1, ROAD_TOP - m.h, 2, 2, P.white);
+  }
+
+  // Grass (top strip)
+  rect(0, ROAD_TOP - 2, PW, 2, P.darkgrn);
+
+  // Road base
+  rect(0, ROAD_TOP, PW, ROAD_BOT - ROAD_TOP, P.darkgray);
+
+  // Road markings - dashes
+  for (let i = 0; i < 10; i++) {
+    const dashX = ((i * 16 - roadOffset + PW) % PW);
+    // lane 1/2 divider
+    rect(dashX, ROAD_TOP + 14, 10, 1, P.yellow);
+    // lane 2/3 divider
+    rect(dashX, ROAD_TOP + 24, 10, 1, P.yellow);
+  }
+  // Edge lines
+  rect(0, ROAD_TOP, PW, 1, P.white);
+  rect(0, ROAD_BOT, PW, 1, P.white);
+
+  // Grass bottom
+  rect(0, ROAD_BOT, PW, PH - ROAD_BOT, P.darkgrn);
+
+  // Grass detail
+  for (let gx = 0; gx < PW; gx += 4) {
+    rect(gx, ROAD_BOT + 2, 1, 2, P.green);
+    rect(gx + 2, ROAD_BOT + 1, 1, 3, P.green);
+  }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  if (state === 'title') {
+    rect(0, 0, PW, PH, P.darkblue);
+    drawScene();
+    // Title box
+    rect(10, 20, PW - 20, 30, P.black);
+    ctx.strokeStyle = P.red;
+    ctx.lineWidth = SCALE;
+    ctx.strokeRect(10 * SCALE, 20 * SCALE, (PW - 20) * SCALE, 30 * SCALE);
+    text8('ROAD', 28, 29, P.red);
+    text8('DODGER', 22, 37, P.yellow);
+    text8('PRESS ENTER', 18, 55, P.white);
+    if (hiScore > 0) text8('HI:' + hiScore, 40, 70, P.pink);
+    return;
+  }
+
+  drawScene();
+
+  // Draw cars
+  for (let c of cars) drawCar(c);
+
+  // Draw player
+  drawPlayer(player);
+
+  // HUD
+  text8('SCORE:' + score, 2, 6, P.white);
+  text8('HI:' + hiScore, 80, 6, P.yellow);
+
+  if (state === 'dead') {
+    rect(20, 38, PW - 40, 20, P.black);
+    ctx.strokeStyle = P.red;
+    ctx.lineWidth = SCALE;
+    ctx.strokeRect(20 * SCALE, 38 * SCALE, (PW - 40) * SCALE, 20 * SCALE);
+    text8('GAME OVER', 28, 44, P.red);
+    text8('ENTER=RETRY', 22, 52, P.white);
+  }
+}
+
+function loop() {
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+loop();
+</script>
+</body>
+</html>
