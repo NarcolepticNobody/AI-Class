@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Tiredness Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: #fef9f3;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #2c2c2c;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .question-section {
+            margin-bottom: 35px;
+            padding: 25px;
+            background: #fff5f5;
+            border-radius: 15px;
+            border: 2px solid #ffd4d4;
+        }
+
+        .question-section:nth-child(3) {
+            background: #f0f8ff;
+            border-color: #c4e0ff;
+        }
+
+        .question {
+            color: #2c2c2c;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .option:hover {
+            transform: translateX(5px);
+            border-color: #ffb3ba;
+        }
+
+        .option input[type="radio"] {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .option label {
+            color: #2c2c2c;
+            cursor: pointer;
+            flex: 1;
+            font-size: 16px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: #ffb3ba;
+            color: #2c2c2c;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            background: #ff9aa2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .score-display {
+            margin-top: 30px;
+            padding: 20px;
+            background: #e8f5e9;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .score-display.show {
+            display: block;
+        }
+
+        .score-display h2 {
+            color: #2c2c2c;
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+
+        .score-item {
+            color: #2c2c2c;
+            font-size: 16px;
+            margin: 8px 0;
+        }
+
+        .error {
+            color: #d32f2f;
+            text-align: center;
+            margin-top: 15px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Daily Tiredness Tracker</h1>
+        
+        <form id="tirednessForm">
+            <div class="question-section">
+                <div class="question">How tired are you today?</div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" id="tired0" name="tiredness" value="0">
+                        <label for="tired0">0 - No chance of dozing</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" id="tired1" name="tiredness" value="1">
+                        <label for="tired1">1 - Slight chance of dozing</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" id="tired2" name="tiredness" value="2">
+                        <label for="tired2">2 - High chance of dozing</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" id="tired3" name="tiredness" value="3">
+                        <label for="tired3">3 - Unable to stay awake</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question-section">
+                <div class="question">How much is narcolepsy affecting you today?</div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" id="narco0" name="narcolepsy" value="0">
+                        <label for="narco0">0 - No impact on alertness</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" id="narco1" name="narcolepsy" value="1">
+                        <label for="narco1">1 - Mild sleepiness episodes</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" id="narco2" name="narcolepsy" value="2">
+                        <label for="narco2">2 - Frequent sleep attacks</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" id="narco3" name="narcolepsy" value="3">
+                        <label for="narco3">3 - Severe uncontrollable sleep</label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">Submit & Track</button>
+            <div class="error" id="error">Please answer both questions before submitting.</div>
+        </form>
+
+        <div class="score-display" id="scoreDisplay">
+            <h2>Your Tracking Summary</h2>
+            <div class="score-item">Total Submissions: <strong id="totalCount">0</strong></div>
+            <div class="score-item">Average Tiredness: <strong id="avgTired">0</strong></div>
+            <div class="score-item">Average Narcolepsy Impact: <strong id="avgNarco">0</strong></div>
+        </div>
+    </div>
+
+    <script>
+        let submissions = [];
+
+        document.getElementById('tirednessForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const tiredness = document.querySelector('input[name="tiredness"]:checked');
+            const narcolepsy = document.querySelector('input[name="narcolepsy"]:checked');
+            const error = document.getElementById('error');
+            
+            if (!tiredness || !narcolepsy) {
+                error.classList.add('show');
+                return;
+            }
+            
+            error.classList.remove('show');
+            
+            submissions.push({
+                tiredness: parseInt(tiredness.value),
+                narcolepsy: parseInt(narcolepsy.value),
+                date: new Date().toLocaleString()
+            });
+            
+            updateScoreDisplay();
+            
+            this.reset();
+        });
+
+        function updateScoreDisplay() {
+            const totalCount = submissions.length;
+            const avgTired = (submissions.reduce((sum, s) => sum + s.tiredness, 0) / totalCount).toFixed(1);
+            const avgNarco = (submissions.reduce((sum, s) => sum + s.narcolepsy, 0) / totalCount).toFixed(1);
+            
+            document.getElementById('totalCount').textContent = totalCount;
+            document.getElementById('avgTired').textContent = avgTired;
+            document.getElementById('avgNarco').textContent = avgNarco;
+            document.getElementById('scoreDisplay').classList.add('show');
+        }
+    </script>
+</body>
+</html>
