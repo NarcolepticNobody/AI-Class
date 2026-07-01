@@ -46,7 +46,7 @@
         }
 
         .question-section:nth-child(3) {
-            background: #f0f8ff;
+            background: #f1f8ff;
             border-color: #c4e0ff;
         }
 
